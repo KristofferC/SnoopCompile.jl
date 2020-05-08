@@ -171,13 +171,13 @@ end
 macro snoopr(expr)
     quote
         local invalidations = ccall(:jl_debug_method_invalidation, Any, (Cint,), 1)
-        try
-            $expr
-        finally
+        Expr(:tryfinally,
+            $(esc(expr)),
             ccall(:jl_debug_method_invalidation, Any, (Cint,), 0)
-        end
+        )
         # invalidations = deepcopy(invalidations)
         # GC.gc()
         invalidations
     end
 end
+
